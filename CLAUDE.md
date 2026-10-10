@@ -10,7 +10,7 @@ Projeto pessoal de portfólio. O autor está **aprendendo Java e Spring Boot**:
 - Mantenha o código idiomático e simples; evite abstrações prematuras.
 
 ## Stack
-- Backend: Java 21, Spring Boot 3, Maven, Spring Data JPA, Spring Security (JWT), PostgreSQL, Flyway
+- Backend: Java 21, Spring Boot 4, Maven, Spring Data JPA, Spring Security (JWT), PostgreSQL, Flyway
 - Testes: JUnit 5, Mockito, Testcontainers
 - Frontend: React + TypeScript + Vite
 

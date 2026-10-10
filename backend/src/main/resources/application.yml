@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: vocably
+  datasource:
+    # Valores padrão batem com o docker-compose.yml; em produção, sobrescreva por variáveis de ambiente.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vocably}
+    username: ${DB_USERNAME:vocably}
+    password: ${DB_PASSWORD:vocably}
+  jpa:
+    # O schema é responsabilidade do Flyway; o Hibernate só confere se as entidades batem com ele.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

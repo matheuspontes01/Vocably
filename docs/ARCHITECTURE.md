@@ -29,7 +29,7 @@ separar responsabilidades — e permite extrair um microsserviço depois, se qui
 | Camada        | Tecnologia                                                     |
 |---------------|----------------------------------------------------------------|
 | Linguagem     | Java 21                                                        |
-| Framework     | Spring Boot 3 (Web, Data JPA, Security, Validation)            |
+| Framework     | Spring Boot 4 (Web, Data JPA, Security, Validation)            |
 | Banco         | PostgreSQL + Flyway (migrations)                               |
 | Auth          | Spring Security + JWT (access token) / refresh token           |
 | Docs da API   | springdoc-openapi (Swagger UI)                                 |
@@ -176,7 +176,7 @@ vocably/
 
 | Fase | Entrega                                                                    |
 |------|----------------------------------------------------------------------------|
-| 0    | Setup: Spring Boot + Postgres via Docker Compose, Flyway, CI no GitHub      |
+| 0    | ✅ Setup: Spring Boot + Postgres via Docker Compose, Flyway, CI no GitHub      |
 | 1    | CRUD de palavras (sem login), testes de controller/service                 |
 | 2    | Autenticação com JWT; palavras passam a pertencer ao usuário               |
 | 3    | Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2)   |

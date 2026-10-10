@@ -1,0 +1,5 @@
+* text=auto
+# Scripts precisam manter o final de linha correto para rodar no Linux (CI) e no Windows.
+*.sh   text eol=lf
+mvnw   text eol=lf
+*.cmd  text eol=crlf
