@@ -23,6 +23,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class WordServiceTest {
 
+    static final Long USER_ID = 7L;
+
     @Mock
     WordRepository repository;
 
@@ -33,7 +35,7 @@ class WordServiceTest {
     void createTrimsTermAndDefaultsSourceTypeToOther() {
         when(repository.save(any(Word.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        WordResponse response = service.create(new WordRequest("  serendipity ", "acaso feliz", null, null, null));
+        WordResponse response = service.create(USER_ID, new WordRequest("  serendipity ", "acaso feliz", null, null, null));
 
         assertThat(response.term()).isEqualTo("serendipity");
         assertThat(response.sourceType()).isEqualTo(SourceType.OTHER);
@@ -41,10 +43,10 @@ class WordServiceTest {
 
     @Test
     void updateChangesExistingWord() {
-        Word word = new Word("ubiquitous", null, null, SourceType.OTHER, null);
-        when(repository.findById(1L)).thenReturn(Optional.of(word));
+        Word word = new Word(USER_ID, "ubiquitous", null, null, SourceType.OTHER, null);
+        when(repository.findByIdAndUserId(1L, USER_ID)).thenReturn(Optional.of(word));
 
-        WordResponse response = service.update(1L,
+        WordResponse response = service.update(USER_ID, 1L,
                 new WordRequest("ubiquitous", "onipresente", "Phones are ubiquitous.", SourceType.BOOK, "1984"));
 
         assertThat(response.translation()).isEqualTo("onipresente");
@@ -53,19 +55,19 @@ class WordServiceTest {
     }
 
     @Test
-    void findByIdThrowsWhenWordDoesNotExist() {
-        when(repository.findById(99L)).thenReturn(Optional.empty());
+    void findByIdThrowsWhenWordDoesNotBelongToUser() {
+        when(repository.findByIdAndUserId(99L, USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.findById(99L))
+        assertThatThrownBy(() -> service.findById(USER_ID, 99L))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }
 
     @Test
-    void deleteDoesNothingWhenWordDoesNotExist() {
-        when(repository.findById(99L)).thenReturn(Optional.empty());
+    void deleteDoesNothingWhenWordDoesNotBelongToUser() {
+        when(repository.findByIdAndUserId(99L, USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.delete(99L)).isInstanceOf(ResourceNotFoundException.class);
+        assertThatThrownBy(() -> service.delete(USER_ID, 99L)).isInstanceOf(ResourceNotFoundException.class);
         verify(repository, never()).delete(any());
     }
 }

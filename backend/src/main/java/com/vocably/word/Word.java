@@ -20,6 +20,11 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Guardamos só o id do dono (e não um @ManyToOne User) para o módulo "word"
+    // não depender das classes do módulo "auth".
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private Long userId;
+
     @Column(nullable = false, length = 100)
     private String term;
 
@@ -42,7 +47,8 @@ public class Word {
     protected Word() {
     }
 
-    public Word(String term, String translation, String contextSentence, SourceType sourceType, String sourceTitle) {
+    public Word(Long userId, String term, String translation, String contextSentence, SourceType sourceType, String sourceTitle) {
+        this.userId = userId;
         update(term, translation, contextSentence, sourceType, sourceTitle);
     }
 
@@ -62,6 +68,10 @@ public class Word {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getTerm() {

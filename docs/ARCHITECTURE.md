@@ -178,7 +178,7 @@ vocably/
 |------|----------------------------------------------------------------------------|
 | 0    | ✅ Setup: Spring Boot + Postgres via Docker Compose, Flyway, CI no GitHub      |
 | 1    | ✅ CRUD de palavras (sem login), testes de controller/service               |
-| 2    | Autenticação com JWT; palavras passam a pertencer ao usuário               |
+| 2    | ✅ Autenticação com JWT; palavras passam a pertencer ao usuário             |
 | 3    | Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2)   |
 | 4    | Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
 | 5    | Integração com API de dicionário (preencher definição automaticamente)     |

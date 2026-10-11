@@ -17,27 +17,27 @@ public class WordService {
         this.repository = repository;
     }
 
-    public Page<WordResponse> list(String search, Pageable pageable) {
+    public Page<WordResponse> list(Long userId, String search, Pageable pageable) {
         Page<Word> page = (search == null || search.isBlank())
-                ? repository.findAll(pageable)
-                : repository.findByTermContainingIgnoreCase(search.trim(), pageable);
+                ? repository.findByUserId(userId, pageable)
+                : repository.findByUserIdAndTermContainingIgnoreCase(userId, search.trim(), pageable);
         return page.map(WordResponse::from);
     }
 
-    public WordResponse findById(Long id) {
-        return WordResponse.from(getWord(id));
+    public WordResponse findById(Long userId, Long id) {
+        return WordResponse.from(getWord(userId, id));
     }
 
     @Transactional
-    public WordResponse create(WordRequest request) {
-        Word word = new Word(request.term(), request.translation(), request.contextSentence(),
+    public WordResponse create(Long userId, WordRequest request) {
+        Word word = new Word(userId, request.term(), request.translation(), request.contextSentence(),
                 request.sourceType(), request.sourceTitle());
         return WordResponse.from(repository.save(word));
     }
 
     @Transactional
-    public WordResponse update(Long id, WordRequest request) {
-        Word word = getWord(id);
+    public WordResponse update(Long userId, Long id, WordRequest request) {
+        Word word = getWord(userId, id);
         word.update(request.term(), request.translation(), request.contextSentence(),
                 request.sourceType(), request.sourceTitle());
         // Sem save(): dentro da transação o JPA detecta a mudança e faz o UPDATE sozinho ("dirty checking").
@@ -45,12 +45,13 @@ public class WordService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        repository.delete(getWord(id));
+    public void delete(Long userId, Long id) {
+        repository.delete(getWord(userId, id));
     }
 
-    private Word getWord(Long id) {
-        return repository.findById(id)
+    // Palavra de outro usuário responde 404 (e não 403) para não revelar que o id existe.
+    private Word getWord(Long userId, Long id) {
+        return repository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Word " + id + " not found"));
     }
 }

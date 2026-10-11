@@ -22,6 +22,12 @@ spring:
         serialization-mode: via-dto
         max-page-size: 100
 
+vocably:
+  jwt:
+    # Em produção defina JWT_SECRET (mínimo 32 caracteres). Este valor serve só para desenvolvimento.
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+    expiration: 24h
+
 management:
   endpoints:
     web:

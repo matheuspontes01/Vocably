@@ -8,7 +8,7 @@ com repetição espaçada (SM-2), com XP, streaks e conquistas para manter o há
 
 📐 Arquitetura e roadmap: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-> Status: em desenvolvimento — fase 1 (CRUD de palavras) concluída.
+> Status: em desenvolvimento — fase 2 (autenticação com JWT) concluída.
 
 ## Pré-requisitos
 
@@ -56,6 +56,19 @@ O Flyway cria as tabelas automaticamente na primeira execução
 
 ## API
 
+### Autenticação
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/api/auth/register` | cria a conta (`email`, `password` com 8+ caracteres, `displayName`) e devolve um token |
+| `POST` | `/api/auth/login` | devolve um token para `email` + `password` |
+
+Todas as outras rotas exigem o header `Authorization: Bearer <token>`. O token é um JWT
+assinado (HS256) que vale 24h. Em produção, defina a variável de ambiente `JWT_SECRET`
+(mínimo 32 caracteres).
+
+### Palavras (sempre do usuário logado)
+
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `GET`    | `/api/words?search=&page=&size=` | lista paginada (busca por termo, sem diferenciar maiúsculas) |
@@ -64,16 +77,23 @@ O Flyway cria as tabelas automaticamente na primeira execução
 | `PUT`    | `/api/words/{id}` | edita uma palavra |
 | `DELETE` | `/api/words/{id}` | remove uma palavra (204) |
 
-Exemplo (PowerShell):
-
-```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/words -ContentType "application/json" `
-  -Body '{"term":"ephemeral","translation":"efêmero","contextSentence":"Fame is ephemeral.","sourceType":"BOOK","sourceTitle":"Dune"}'
-```
-
 `sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
 [ProblemDetail (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), por exemplo
 `{"status":404,"detail":"Word 42 not found"}`.
+
+### Testando no PowerShell
+
+```powershell
+# Cria a conta e guarda o token
+$auth = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/register -ContentType "application/json" `
+  -Body '{"email":"voce@example.com","password":"minhasenha123","displayName":"Você"}'
+$headers = @{ Authorization = "Bearer $($auth.token)" }
+
+# Cadastra e lista palavras
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/words -Headers $headers -ContentType "application/json" `
+  -Body '{"term":"ephemeral","translation":"efêmero","contextSentence":"Fame is ephemeral.","sourceType":"BOOK","sourceTitle":"Dune"}'
+(Invoke-RestMethod -Uri http://localhost:8080/api/words -Headers $headers).content
+```
 
 ## Testes
 
