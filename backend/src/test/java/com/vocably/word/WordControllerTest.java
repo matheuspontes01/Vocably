@@ -88,7 +88,17 @@ class WordControllerTest {
         mvc.perform(post("/api/words").with(as(alice))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"term": "  "}
+                                {"term": "  ", "translation": "algo"}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void rejectsMissingTranslation() throws Exception {
+        mvc.perform(post("/api/words").with(as(alice))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"term": "ephemeral"}
                                 """))
                 .andExpect(status().isBadRequest());
     }
@@ -102,8 +112,8 @@ class WordControllerTest {
 
     @Test
     void searchesByTermIgnoringCase() throws Exception {
-        words.save(new Word(alice.getId(), "Resilient", null, null, SourceType.OTHER, null));
-        words.save(new Word(alice.getId(), "brittle", null, null, SourceType.OTHER, null));
+        words.save(new Word(alice.getId(), "Resilient", "x", null, SourceType.OTHER, null));
+        words.save(new Word(alice.getId(), "brittle", "x", null, SourceType.OTHER, null));
 
         mvc.perform(get("/api/words").param("search", "resil").with(as(alice)))
                 .andExpect(status().isOk())
@@ -114,7 +124,7 @@ class WordControllerTest {
 
     @Test
     void updatesAndDeletesWord() throws Exception {
-        Word word = words.save(new Word(alice.getId(), "cumbersome", null, null, SourceType.OTHER, null));
+        Word word = words.save(new Word(alice.getId(), "cumbersome", "x", null, SourceType.OTHER, null));
 
         mvc.perform(put("/api/words/{id}", word.getId()).with(as(alice))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +144,7 @@ class WordControllerTest {
 
     @Test
     void usersCannotSeeOrChangeEachOthersWords() throws Exception {
-        Word aliceWord = words.save(new Word(alice.getId(), "secret", null, null, SourceType.OTHER, null));
+        Word aliceWord = words.save(new Word(alice.getId(), "secret", "x", null, SourceType.OTHER, null));
 
         mvc.perform(get("/api/words").with(as(bob)))
                 .andExpect(status().isOk())

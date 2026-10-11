@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
@@ -28,6 +29,9 @@ class WordServiceTest {
     @Mock
     WordRepository repository;
 
+    @Mock
+    ApplicationEventPublisher events;
+
     @InjectMocks
     WordService service;
 
@@ -39,11 +43,13 @@ class WordServiceTest {
 
         assertThat(response.term()).isEqualTo("serendipity");
         assertThat(response.sourceType()).isEqualTo(SourceType.OTHER);
+        // Outros módulos (revisão) são avisados para criar os cards.
+        verify(events).publishEvent(any(WordCreatedEvent.class));
     }
 
     @Test
     void updateChangesExistingWord() {
-        Word word = new Word(USER_ID, "ubiquitous", null, null, SourceType.OTHER, null);
+        Word word = new Word(USER_ID, "ubiquitous", "onipresente", null, SourceType.OTHER, null);
         when(repository.findByIdAndUserId(1L, USER_ID)).thenReturn(Optional.of(word));
 
         WordResponse response = service.update(USER_ID, 1L,

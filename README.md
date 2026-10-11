@@ -77,7 +77,18 @@ assinado (HS256) que vale 24h. Em produção, defina a variável de ambiente `JW
 | `PUT`    | `/api/words/{id}` | edita uma palavra |
 | `DELETE` | `/api/words/{id}` | remove uma palavra (204) |
 
-`sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
+### Revisão (repetição espaçada)
+
+Cada palavra cadastrada gera dois flashcards (inglês → português e português → inglês),
+agendados pelo algoritmo SM-2.
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET`  | `/api/reviews/due?limit=20` | cards para revisar hoje (frente, verso e frase de contexto) |
+| `POST` | `/api/reviews/{cardId}` | registra a resposta: `{"grade": "AGAIN" \| "HARD" \| "GOOD" \| "EASY"}` |
+| `GET`  | `/api/reviews/summary` | `{"dueToday": 12, "reviewedToday": 5}` |
+
+`translation` é obrigatória ao cadastrar palavras. `sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
 [ProblemDetail (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), por exemplo
 `{"status":404,"detail":"Word 42 not found"}`.
 

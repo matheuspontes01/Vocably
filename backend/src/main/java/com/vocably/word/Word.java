@@ -28,6 +28,7 @@ public class Word {
     @Column(nullable = false, length = 100)
     private String term;
 
+    @Column(nullable = false)
     private String translation;
 
     @Column(name = "context_sentence")
@@ -55,7 +56,7 @@ public class Word {
     /** Em vez de vários setters, um único método mantém a entidade sempre consistente. */
     public void update(String term, String translation, String contextSentence, SourceType sourceType, String sourceTitle) {
         this.term = term.trim();
-        this.translation = translation;
+        this.translation = translation.trim();
         this.contextSentence = contextSentence;
         this.sourceType = sourceType != null ? sourceType : SourceType.OTHER;
         this.sourceTitle = sourceTitle;

@@ -64,10 +64,9 @@ Dentro de cada módulo: `XController` → `XService` → `XRepository` + entidad
 users           (id, email, password_hash, display_name, daily_goal, created_at)
 words           (id, user_id, term, translation, definition, phonetic,
                  context_sentence, source_type [BOOK|VIDEO|OTHER], source_title, created_at)
-cards           (id, word_id, type [EN_TO_PT|PT_TO_EN|CLOZE], front, back)
-card_reviews    (card_id PK, ease_factor, interval_days, repetitions,
-                 due_date, last_reviewed_at)                      -- estado do SRS
-review_logs     (id, card_id, user_id, grade 0..5, reviewed_at, response_ms) -- histórico
+cards           (id, word_id, user_id, direction [EN_TO_PT|PT_TO_EN],
+                 ease_factor, interval_days, repetitions, due_date, last_reviewed_at) -- estado do SRS
+review_logs     (id, card_id, user_id, grade [AGAIN|HARD|GOOD|EASY], reviewed_at)   -- histórico
 quiz_sessions   (id, user_id, started_at, finished_at, score)
 quiz_answers    (id, session_id, word_id, question_type, correct, answered_at)
 user_stats      (user_id PK, xp, level, current_streak, longest_streak, last_activity_date)
@@ -75,8 +74,10 @@ achievements    (id, code, name, description)
 user_achievements (user_id, achievement_id, unlocked_at)
 ```
 
-Separar `card_reviews` (estado atual) de `review_logs` (histórico) facilita estatísticas
-("quantas palavras você aprendeu este mês?") e permite trocar o algoritmo no futuro.
+Frente e verso do card não são gravados: são montados a partir da palavra, então editar a
+tradução atualiza os cards automaticamente. Separar o estado atual (`cards`) do histórico
+(`review_logs`) facilita estatísticas ("quantas revisões você fez este mês?") e permite trocar
+o algoritmo no futuro.
 
 ## 5. Repetição espaçada (SRS)
 
@@ -153,8 +154,9 @@ POST   /api/auth/register            POST /api/auth/login
 GET    /api/words?search=&page=      POST /api/words       (cria palavra + cards)
 GET    /api/words/{id}               PUT  /api/words/{id}    DELETE /api/words/{id}
 GET    /api/dictionary/{term}        (definição/tradução sugerida)
-GET    /api/reviews/today            (fila de cards vencidos)
-POST   /api/reviews/{cardId}         { "grade": 4, "responseMs": 2300 }
+GET    /api/reviews/due?limit=20     (fila de cards vencidos)
+POST   /api/reviews/{cardId}         { "grade": "GOOD" }   (AGAIN | HARD | GOOD | EASY)
+GET    /api/reviews/summary          (cards para hoje, revisões feitas hoje)
 POST   /api/quizzes                  (gera uma sessão)   POST /api/quizzes/{id}/answers
 GET    /api/stats/me                 (XP, nível, streak, palavras aprendidas)
 ```
@@ -179,7 +181,7 @@ vocably/
 | 0    | ✅ Setup: Spring Boot + Postgres via Docker Compose, Flyway, CI no GitHub      |
 | 1    | ✅ CRUD de palavras (sem login), testes de controller/service               |
 | 2    | ✅ Autenticação com JWT; palavras passam a pertencer ao usuário             |
-| 3    | Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2)   |
+| 3    | ✅ Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2) |
 | 4    | Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
 | 5    | Integração com API de dicionário (preencher definição automaticamente)     |
 | 6    | Quizzes (múltipla escolha, cloze)                                          |
