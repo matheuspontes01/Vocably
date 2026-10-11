@@ -8,13 +8,14 @@ com repetição espaçada (SM-2), com XP, streaks e conquistas para manter o há
 
 📐 Arquitetura e roadmap: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-> Status: em desenvolvimento — fase 2 (autenticação com JWT) concluída.
+> Status: em desenvolvimento — fase 4 (primeira versão do frontend) concluída.
 
 ## Pré-requisitos
 
 | Ferramenta | Para quê |
 |------------|----------|
 | JDK 21     | compilar e rodar o backend |
+| Node.js 22 (LTS) | rodar o frontend |
 | Docker Desktop | sobe o PostgreSQL (`docker compose`) e roda os testes (Testcontainers) |
 | Git        | versionamento |
 
@@ -28,6 +29,7 @@ Abra o **PowerShell como administrador** e rode:
 ```powershell
 winget install EclipseAdoptium.Temurin.21.JDK
 winget install Docker.DockerDesktop
+winget install OpenJS.NodeJS.LTS
 ```
 
 Depois reinicie o computador, abra o Docker Desktop uma vez (aceite os termos e, se ele
@@ -36,23 +38,34 @@ pedir, deixe instalar/atualizar o **WSL 2**) e confira em um terminal novo:
 ```powershell
 java -version            # deve mostrar 21
 docker compose version
+node -v                  # deve mostrar v22 ou mais novo
 ```
 
 ## Rodando localmente
 
+São três partes, cada uma em um terminal:
+
 ```powershell
-# 1. Sobe o PostgreSQL (na raiz do projeto)
+# Terminal 1 — banco de dados (na raiz do projeto)
 docker compose up -d
 
-# 2. Sobe a API (Windows: mvnw.cmd · Linux/macOS: ./mvnw)
+# Terminal 2 — API (Windows: mvnw.cmd · Linux/macOS: ./mvnw)
 cd backend
 .\mvnw.cmd spring-boot:run
+
+# Terminal 3 — frontend
+cd frontend
+npm install        # só na primeira vez
+npm run dev
 ```
 
-Teste em http://localhost:8080/actuator/health → `{"status":"UP"}`.
+Abra **http://localhost:5173**, crie sua conta, salve algumas palavras e clique em
+**Revisar**. Na revisão: **espaço** vira o card e as teclas **1–4** respondem
+(Errei / Difícil / Bom / Fácil).
 
 O Flyway cria as tabelas automaticamente na primeira execução
-(`backend/src/main/resources/db/migration`).
+(`backend/src/main/resources/db/migration`). Para checar só a API:
+http://localhost:8080/actuator/health → `{"status":"UP"}`.
 
 ## API
 

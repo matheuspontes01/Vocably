@@ -12,7 +12,7 @@ Projeto pessoal de portfólio. O autor está **aprendendo Java e Spring Boot**:
 ## Stack
 - Backend: Java 21, Spring Boot 4, Maven, Spring Data JPA, Spring Security (JWT), PostgreSQL, Flyway
 - Testes: JUnit 5, Mockito, Testcontainers
-- Frontend: React + TypeScript + Vite
+- Frontend: React + TypeScript + Vite + React Router (em `frontend/`)
 
 ## Convenções
 - Pacotes por funcionalidade: `com.vocably.<modulo>` (auth, word, card, review, quiz, gamification, shared).

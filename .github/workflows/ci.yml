@@ -21,3 +21,19 @@ jobs:
       # Os testes usam Testcontainers; o runner do GitHub já tem Docker.
       - name: Build e testes
         run: ./mvnw -B verify
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # Checa os tipos (TypeScript) e gera o build de produção.
+      - run: npm run build

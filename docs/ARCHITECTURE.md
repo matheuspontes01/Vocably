@@ -35,7 +35,7 @@ separar responsabilidades — e permite extrair um microsserviço depois, se qui
 | Docs da API   | springdoc-openapi (Swagger UI)                                 |
 | Testes        | JUnit 5, Mockito, Spring Boot Test, Testcontainers (Postgres)  |
 | Build         | Maven                                                          |
-| Frontend      | React + TypeScript + Vite, TanStack Query, React Router, Tailwind |
+| Frontend      | React + TypeScript + Vite, React Router, CSS puro                 |
 | Infra local   | Docker Compose (Postgres + backend + frontend)                 |
 | CI            | GitHub Actions (build + testes a cada PR)                      |
 | Deploy (opc.) | Render / Railway / Fly.io (backend + Postgres), Vercel (front) |
@@ -182,7 +182,7 @@ vocably/
 | 1    | ✅ CRUD de palavras (sem login), testes de controller/service               |
 | 2    | ✅ Autenticação com JWT; palavras passam a pertencer ao usuário             |
 | 3    | ✅ Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2) |
-| 4    | Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
+| 4    | ✅ Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
 | 5    | Integração com API de dicionário (preencher definição automaticamente)     |
 | 6    | Quizzes (múltipla escolha, cloze)                                          |
 | 7    | Gamificação (XP, streak, conquistas) com eventos do Spring                 |
