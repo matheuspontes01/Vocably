@@ -27,6 +27,13 @@ vocably:
     # Em produção defina JWT_SECRET (mínimo 32 caracteres). Este valor serve só para desenvolvimento.
     secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
     expiration: 24h
+  dictionary:
+    # Free Dictionary API: pronúncia, áudio, definições e exemplos (gratuita, sem chave).
+    base-url: https://api.dictionaryapi.dev
+  translation:
+    # MyMemory: tradução gratuita. Sem email: ~5.000 caracteres/dia; com email: ~50.000.
+    base-url: https://api.mymemory.translated.net
+    email: ${TRANSLATION_EMAIL:}
 
 management:
   endpoints:

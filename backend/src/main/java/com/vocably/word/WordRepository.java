@@ -3,7 +3,9 @@ package com.vocably.word;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface WordRepository extends JpaRepository<Word, Long> {
@@ -16,4 +18,12 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     Page<Word> findByUserIdAndTermContainingIgnoreCase(Long userId, String term, Pageable pageable);
 
     Optional<Word> findByIdAndUserId(Long id, Long userId);
+
+    Optional<Word> findFirstByUserIdAndTermIgnoreCase(Long userId, String term);
+
+    // SQL "nativo" (do PostgreSQL) porque JPQL não tem ORDER BY random().
+    @Query(value = "SELECT * FROM words WHERE user_id = :userId ORDER BY random() LIMIT :limit", nativeQuery = true)
+    List<Word> findRandom(Long userId, int limit);
+
+    long countByUserId(Long userId);
 }

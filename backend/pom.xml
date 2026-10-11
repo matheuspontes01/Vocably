@@ -42,6 +42,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <!-- RestClient: chamadas HTTP às APIs gratuitas de dicionário e tradução -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+        </dependency>
+        <!-- @Cacheable: evita consultar a mesma palavra duas vezes nas APIs externas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
         <!-- Valida JWT nas requisições (e traz a biblioteca Nimbus, que também usamos para gerá-los) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

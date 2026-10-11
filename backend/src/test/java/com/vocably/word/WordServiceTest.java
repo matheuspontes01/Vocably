@@ -1,5 +1,6 @@
 package com.vocably.word;
 
+import com.vocably.dictionary.LookupService;
 import com.vocably.shared.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,9 @@ class WordServiceTest {
 
     @Mock
     ApplicationEventPublisher events;
+
+    @Mock
+    LookupService lookupService;
 
     @InjectMocks
     WordService service;
