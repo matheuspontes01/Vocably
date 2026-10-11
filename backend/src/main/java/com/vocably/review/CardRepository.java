@@ -22,4 +22,7 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     long countByUserIdAndDueDateLessThanEqual(Long userId, LocalDate today);
 
     Optional<Card> findByIdAndUserId(Long id, Long userId);
+
+    // Projeção: busca só as duas colunas que as estatísticas usam, direto num record.
+    List<CardSchedule> findScheduleByUserId(Long userId);
 }

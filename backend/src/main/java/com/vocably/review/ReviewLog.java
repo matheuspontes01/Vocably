@@ -42,4 +42,12 @@ public class ReviewLog {
         this.grade = grade;
         this.reviewedAt = reviewedAt;
     }
+
+    public ReviewGrade getGrade() {
+        return grade;
+    }
+
+    public Instant getReviewedAt() {
+        return reviewedAt;
+    }
 }

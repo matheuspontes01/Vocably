@@ -26,4 +26,8 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     List<Word> findRandom(Long userId, int limit);
 
     long countByUserId(Long userId);
+
+    long countByUserIdAndCreatedAtBefore(Long userId, java.time.Instant before);
+
+    List<Word> findByUserIdAndCreatedAtGreaterThanEqual(Long userId, java.time.Instant since);
 }
