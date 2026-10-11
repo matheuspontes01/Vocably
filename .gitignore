@@ -19,3 +19,6 @@ dist/
 Thumbs.db
 .env
 *.tsbuildinfo
+
+# Configuração local e segredos (ex.: chave da API do Claude)
+backend/config/

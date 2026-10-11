@@ -1,6 +1,9 @@
 spring:
   application:
     name: vocably
+  config:
+    # Configurações locais e segredos (ex.: a chave da IA) ficam fora do git.
+    import: optional:file:./config/application-local.yml
   datasource:
     # Valores padrão batem com o docker-compose.yml; em produção, sobrescreva por variáveis de ambiente.
     url: ${DB_URL:jdbc:postgresql://localhost:5432/vocably}
@@ -27,6 +30,12 @@ vocably:
     # Em produção defina JWT_SECRET (mínimo 32 caracteres). Este valor serve só para desenvolvimento.
     secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
     expiration: 24h
+  ai:
+    # Chave da API da Anthropic (https://console.anthropic.com). Nunca coloque a chave real
+    # neste arquivo: use a variável de ambiente ANTHROPIC_API_KEY ou backend/config/application.yml
+    # (pasta ignorada pelo git). Sem chave, o app funciona normalmente, só sem os recursos de IA.
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: claude-opus-5-5
 
 management:
   endpoints:
