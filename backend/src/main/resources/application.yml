@@ -11,6 +11,16 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  mvc:
+    # Erros de validação (400) e outros erros do Spring MVC também saem como ProblemDetail.
+    problemdetails:
+      enabled: true
+  data:
+    web:
+      pageable:
+        # Serializa Page como {"content": [...], "page": {...}} — formato JSON estável.
+        serialization-mode: via-dto
+        max-page-size: 100
 
 management:
   endpoints:

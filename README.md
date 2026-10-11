@@ -8,7 +8,7 @@ com repetição espaçada (SM-2), com XP, streaks e conquistas para manter o há
 
 📐 Arquitetura e roadmap: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-> Status: em desenvolvimento — fase 0 (setup) concluída.
+> Status: em desenvolvimento — fase 1 (CRUD de palavras) concluída.
 
 ## Pré-requisitos
 
@@ -53,6 +53,27 @@ Teste em http://localhost:8080/actuator/health → `{"status":"UP"}`.
 
 O Flyway cria as tabelas automaticamente na primeira execução
 (`backend/src/main/resources/db/migration`).
+
+## API
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET`    | `/api/words?search=&page=&size=` | lista paginada (busca por termo, sem diferenciar maiúsculas) |
+| `GET`    | `/api/words/{id}` | detalhe de uma palavra |
+| `POST`   | `/api/words` | cadastra uma palavra (201 + header `Location`) |
+| `PUT`    | `/api/words/{id}` | edita uma palavra |
+| `DELETE` | `/api/words/{id}` | remove uma palavra (204) |
+
+Exemplo (PowerShell):
+
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/words -ContentType "application/json" `
+  -Body '{"term":"ephemeral","translation":"efêmero","contextSentence":"Fame is ephemeral.","sourceType":"BOOK","sourceTitle":"Dune"}'
+```
+
+`sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
+[ProblemDetail (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), por exemplo
+`{"status":404,"detail":"Word 42 not found"}`.
 
 ## Testes
 
