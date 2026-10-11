@@ -112,6 +112,15 @@ agendados pelo algoritmo SM-2.
 | `POST` | `/api/reviews/{cardId}` | registra a resposta: `{"grade": "AGAIN" \| "HARD" \| "GOOD" \| "EASY"}` |
 | `GET`  | `/api/reviews/summary` | `{"dueToday": 12, "reviewedToday": 5}` |
 
+### Progresso
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/api/stats?days=30` | sequência de dias, taxa de acerto, revisões por dia, total de palavras por dia, estágio dos cards e respostas por nota (`days` de 7 a 365) |
+
+A página **Progresso** do frontend mostra esses dados em gráficos (SVG feito à mão, sem
+biblioteca), com tooltip, navegação por teclado, tabela com os mesmos números e tema escuro.
+
 ### Quiz
 
 | Método | Rota | Descrição |

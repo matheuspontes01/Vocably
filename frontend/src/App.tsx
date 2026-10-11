@@ -3,6 +3,7 @@ import { useAuth } from "./auth";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { QuizPage } from "./pages/QuizPage";
+import { StatsPage } from "./pages/StatsPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { WordsPage } from "./pages/WordsPage";
 
@@ -15,6 +16,7 @@ export function App() {
         <Route path="/words" element={<WordsPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/quiz" element={<QuizPage />} />
+        <Route path="/progress" element={<StatsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -37,6 +39,7 @@ function ProtectedLayout() {
           <NavLink to="/words">Palavras</NavLink>
           <NavLink to="/review">Revisar</NavLink>
           <NavLink to="/quiz">Quiz</NavLink>
+          <NavLink to="/progress">Progresso</NavLink>
         </nav>
         <div className="user">
           <span>{session.displayName}</span>

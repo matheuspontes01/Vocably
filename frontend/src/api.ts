@@ -96,6 +96,25 @@ export interface ReviewSummary {
   reviewedToday: number;
 }
 
+export type CardStage = "NEW" | "LEARNING" | "YOUNG" | "MATURE";
+
+export interface DailyCount {
+  date: string; // "2026-10-11"
+  count: number;
+}
+
+export interface Stats {
+  days: number;
+  totalWords: number;
+  currentStreak: number;
+  reviewsInPeriod: number;
+  accuracy: number | null;
+  reviewsPerDay: DailyCount[];
+  totalWordsPerDay: DailyCount[];
+  cardStages: Record<CardStage, number>;
+  grades: Record<ReviewGrade, number>;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -164,6 +183,7 @@ export const api = {
   review: (cardId: number, grade: ReviewGrade) =>
     request<ReviewResult>(`/api/reviews/${cardId}`, { method: "POST", body: { grade } }),
   summary: () => request<ReviewSummary>("/api/reviews/summary"),
+  stats: (days: number) => request<Stats>(`/api/stats?days=${days}`),
 
   generateQuiz: (size = 10) => request<QuizQuestion[]>(`/api/quizzes?size=${size}`, { method: "POST" }),
 };

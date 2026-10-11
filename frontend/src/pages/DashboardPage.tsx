@@ -22,6 +22,9 @@ export function DashboardPage() {
         <Stat label="Revisados hoje" value={summary?.reviewedToday} />
         <Stat label="Palavras salvas" value={totalWords} />
       </div>
+      <Link to="/progress" className="link-subtle">
+        Ver gráficos de progresso →
+      </Link>
 
       {summary && summary.dueToday > 0 ? (
         <div className="row actions">

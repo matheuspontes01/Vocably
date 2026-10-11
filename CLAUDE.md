@@ -13,10 +13,10 @@ Projeto pessoal de portfólio. O autor está **aprendendo Java e Spring Boot**:
 - Backend: Java 21, Spring Boot 4, Maven, Spring Data JPA, Spring Security (JWT), PostgreSQL, Flyway
 - APIs externas gratuitas (módulo `dictionary`): Free Dictionary API e MyMemory, via `RestClient`
 - Testes: JUnit 5, Mockito, Testcontainers; APIs externas testadas com `MockRestServiceServer`
-- Frontend: React + TypeScript + Vite + React Router (em `frontend/`)
+- Frontend: React + TypeScript + Vite + React Router (em `frontend/`); gráficos em SVG próprio (`frontend/src/charts`), sem biblioteca
 
 ## Convenções
-- Pacotes por funcionalidade: `com.vocably.<modulo>` (auth, word, dictionary, review, quiz, gamification, shared).
+- Pacotes por funcionalidade: `com.vocably.<modulo>` (auth, word, dictionary, review, quiz, stats, gamification, shared).
 - Controllers recebem/retornam DTOs (records), nunca entidades JPA.
 - Toda mudança de schema via migration Flyway (`backend/src/main/resources/db/migration`).
 - Toda regra de negócio nova vem com teste.

@@ -51,6 +51,7 @@ backend/src/main/java/com/vocably/
 ├── dictionary/    # APIs gratuitas: Free Dictionary (pronúncia, definições) e MyMemory (tradução)
 ├── review/        # flashcards + repetição espaçada: fila do dia, registrar resposta
 ├── quiz/          # quizzes de múltipla escolha gerados a partir das palavras do usuário
+├── stats/         # estatísticas da página Progresso (sequência, acerto, gráficos)
 ├── gamification/  # XP, streak, metas diárias, níveis, conquistas
 └── shared/        # exceções, config, utilitários
 ```
@@ -158,6 +159,17 @@ múltipla escolha. As alternativas erradas são traduções/termos das outras pa
 2. **Significado** — "O que significa X?", opções em português;
 3. **Em inglês** — "Como se diz X em inglês?", opções em inglês.
 
+## 7.1 Progresso (gráficos)
+
+`GET /api/stats` junta tudo que a página Progresso precisa numa resposta. As regras ficam em
+`StatsCalculator` (Java puro, com testes): séries diárias preenchidas com zero, total
+acumulado de palavras, sequência de dias (não quebra antes de você revisar hoje) e estágio
+dos cards pelo intervalo do SM-2 — **Novo** (nunca revisado), **Aprendendo** (< 7 dias),
+**Recente** (7–20) e **Fixado** (≥ 21). No frontend, os gráficos (`frontend/src/charts`) são
+componentes React que desenham SVG direto: colunas (revisões por dia), linha com área (total de
+palavras) e barras horizontais (estágios e notas), todos com uma cor só, validada para
+contraste nos temas claro e escuro.
+
 ## 8. API REST (rascunho)
 
 ```
@@ -168,7 +180,7 @@ GET    /api/reviews/due?limit=20     (fila de cards vencidos)
 POST   /api/reviews/{cardId}         { "grade": "GOOD" }   (AGAIN | HARD | GOOD | EASY)
 GET    /api/reviews/summary          (cards para hoje, revisões feitas hoje)
 POST   /api/quizzes?size=10          (gera perguntas de múltipla escolha)
-GET    /api/stats/me                 (XP, nível, streak, palavras aprendidas)
+GET    /api/stats?days=30            (sequência, acerto, séries diárias, estágios, notas)
 ```
 
 ## 9. Estrutura do repositório

@@ -16,6 +16,11 @@
   --warning-bg: #fffbeb;
   --warning: #b45309;
   --error-bg: #fef2f2;
+  /* Gráficos: uma série só, validada contra a superfície (contraste >= 3:1) */
+  --chart-series: #2a78d6;
+  --chart-grid: #e8e9ef;
+  --chart-baseline: #c3c4cf;
+  --chart-axis: #7c8093;
   --radius: 12px;
   color-scheme: light;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -37,6 +42,10 @@
     --warning-bg: #2b2111;
     --warning: #fbbf24;
     --error-bg: #2d1416;
+    --chart-series: #3987e5;
+    --chart-grid: #2a2d3a;
+    --chart-baseline: #3d4152;
+    --chart-axis: #8d90a3;
     color-scheme: dark;
   }
 }
@@ -220,6 +229,12 @@ button.link.danger {
   color: var(--danger);
 }
 
+.link-subtle {
+  color: var(--primary);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
 .error {
   color: var(--danger);
   margin: 0;
@@ -254,7 +269,7 @@ button.link.danger {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
 }
 
@@ -524,6 +539,197 @@ button.link.danger {
   flex: 1;
 }
 
+/* ---------- Gráficos (página Progresso) ---------- */
+
+.segmented {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented button {
+  border: none;
+  border-radius: 0;
+  padding: 8px 14px;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--border);
+}
+
+.segmented button.selected {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.refreshing {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.chart-card h2 {
+  font-size: 1.05rem;
+}
+
+.chart-card header p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+}
+
+.chart-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.chart {
+  position: relative;
+  width: 100%;
+}
+
+.chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.chart-baseline {
+  stroke: var(--chart-baseline);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.chart-axis {
+  fill: var(--chart-axis);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-label {
+  fill: var(--text);
+  font-size: 13px;
+}
+
+.chart-value {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart-bar {
+  fill: var(--chart-series);
+  transition: opacity 0.1s;
+}
+
+.chart-bar.active {
+  opacity: 0.75;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--chart-series);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-area {
+  fill: var(--chart-series);
+  opacity: 0.1;
+}
+
+.chart-dot {
+  fill: var(--chart-series);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.chart-crosshair {
+  stroke: var(--chart-baseline);
+  stroke-width: 1;
+}
+
+.chart-hit {
+  fill: transparent;
+  cursor: default;
+  outline: none;
+}
+
+.chart-hit:focus-visible {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 10px));
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  z-index: 1;
+}
+
+.chart-tooltip strong {
+  font-size: 0.95rem;
+}
+
+.chart-tooltip span {
+  color: var(--muted);
+}
+
+.chart-empty {
+  padding: 40px 0;
+  margin: 0;
+}
+
+.chart-table summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.chart-table table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.chart-table th,
+.chart-table td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-table td:last-child,
+.chart-table th:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Revisão (card que vira) ---------- */
 
 .flashcard {
@@ -627,6 +833,13 @@ button.link.danger {
   .topbar nav {
     order: 3;
     flex-basis: 100%;
+    min-width: 0;
+    overflow-x: auto; /* 5 links não cabem lado a lado em telas pequenas: rolam na horizontal */
+  }
+
+  .topbar nav a {
+    padding: 6px 10px;
+    white-space: nowrap;
   }
 
   .user {
@@ -640,7 +853,7 @@ button.link.danger {
   }
 
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .grades {
