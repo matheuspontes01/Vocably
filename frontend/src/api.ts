@@ -10,7 +10,16 @@ export interface AuthResponse {
   displayName: string;
 }
 
-export interface Word {
+/** Detalhes vindos do dicionário (todos opcionais). */
+export interface WordDetails {
+  partOfSpeech: string | null;
+  phonetic: string | null;
+  audioUrl: string | null;
+  definition: string | null;
+  exampleSentence: string | null;
+}
+
+export interface Word extends WordDetails {
   id: number;
   term: string;
   translation: string;
@@ -20,7 +29,7 @@ export interface Word {
   createdAt: string;
 }
 
-export interface WordInput {
+export interface WordInput extends Partial<WordDetails> {
   term: string;
   translation: string;
   contextSentence?: string;
@@ -28,18 +37,52 @@ export interface WordInput {
   sourceTitle?: string;
 }
 
+export interface Definition {
+  partOfSpeech: string | null;
+  definition: string;
+  example: string | null;
+}
+
+/** Sugestão do dicionário + tradutor. Qualquer campo pode vir vazio se as APIs não souberem. */
+export interface WordLookup {
+  term: string;
+  translation: string | null;
+  alternativeTranslations: string[];
+  phonetic: string | null;
+  audioUrl: string | null;
+  definitions: Definition[];
+  contextTranslation: string | null;
+}
+
+export interface LookupResponse {
+  suggestion: WordLookup;
+  existingWordId: number | null;
+}
+
+export interface QuizQuestion {
+  wordId: number;
+  term: string;
+  type: "FILL_IN_THE_BLANK" | "MEANING" | "REVERSE";
+  prompt: string;
+  sentence: string | null;
+  options: string[];
+  correctOption: number;
+  explanation: string;
+}
+
 export interface Page<T> {
   content: T[];
   page: { size: number; number: number; totalElements: number; totalPages: number };
 }
 
-export interface Card {
+export interface Card extends WordDetails {
   id: number;
   wordId: number;
   direction: "EN_TO_PT" | "PT_TO_EN";
   front: string;
   back: string;
   contextSentence: string | null;
+  term: string;
 }
 
 export interface ReviewResult {
@@ -112,6 +155,8 @@ export const api = {
 
   listWords: (search = "", page = 0) =>
     request<Page<Word>>(`/api/words?${new URLSearchParams({ search, page: String(page), size: "50" })}`),
+  lookupWord: (term: string, context?: string) =>
+    request<LookupResponse>(`/api/words/lookup?${new URLSearchParams({ term, ...(context && { context }) })}`),
   createWord: (input: WordInput) => request<Word>("/api/words", { method: "POST", body: input }),
   deleteWord: (id: number) => request<void>(`/api/words/${id}`, { method: "DELETE" }),
 
@@ -119,4 +164,6 @@ export const api = {
   review: (cardId: number, grade: ReviewGrade) =>
     request<ReviewResult>(`/api/reviews/${cardId}`, { method: "POST", body: { grade } }),
   summary: () => request<ReviewSummary>("/api/reviews/summary"),
+
+  generateQuiz: (size = 10) => request<QuizQuestion[]>(`/api/quizzes?size=${size}`, { method: "POST" }),
 };

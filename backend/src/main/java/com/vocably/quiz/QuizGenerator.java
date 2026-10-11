@@ -89,7 +89,7 @@ public class QuizGenerator {
         }
         return options(word.getTerm(), pool, Word::getTerm).map(options -> new QuizQuestion(
                 word.getId(), word.getTerm(), QuestionType.FILL_IN_THE_BLANK,
-                "Complete a frase:",
+                "Qual palavra completa a frase?",
                 sentence.get(),
                 options, options.indexOf(word.getTerm()),
                 "“" + word.getTerm() + "” = " + word.getTranslation() + "."));

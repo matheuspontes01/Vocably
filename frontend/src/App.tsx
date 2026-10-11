@@ -2,6 +2,7 @@ import { Navigate, NavLink, Outlet, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
+import { QuizPage } from "./pages/QuizPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { WordsPage } from "./pages/WordsPage";
 
@@ -13,6 +14,7 @@ export function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/words" element={<WordsPage />} />
         <Route path="/review" element={<ReviewPage />} />
+        <Route path="/quiz" element={<QuizPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -34,6 +36,7 @@ function ProtectedLayout() {
           </NavLink>
           <NavLink to="/words">Palavras</NavLink>
           <NavLink to="/review">Revisar</NavLink>
+          <NavLink to="/quiz">Quiz</NavLink>
         </nav>
         <div className="user">
           <span>{session.displayName}</span>

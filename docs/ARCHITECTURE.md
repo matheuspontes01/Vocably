@@ -15,8 +15,8 @@ diariamente com **repetição espaçada** e com uma camada de **gamificação**.
                          ┌──────────────────────────────────┼─────────────────────┐
                          ▼                                  ▼                     ▼
                 ┌────────────────┐              ┌──────────────────┐   ┌────────────────────┐
-                │  PostgreSQL    │              │ API de dicionário│   │ LLM (opcional)     │
-                │  (Flyway)      │              │ / tradução       │   │ gera frases/quizzes│
+                │  PostgreSQL    │              │ Free Dictionary  │   │ MyMemory           │
+                │  (Flyway)      │              │ API (dicionário) │   │ (tradução)         │
                 └────────────────┘              └──────────────────┘   └────────────────────┘
 ```
 
@@ -48,10 +48,9 @@ Organização por **funcionalidade** (package-by-feature), não por camada:
 backend/src/main/java/com/vocably/
 ├── auth/          # cadastro, login, JWT, usuário
 ├── word/          # palavras do usuário (termo, tradução, contexto, fonte)
-├── dictionary/    # integração com API externa (definição, fonética, exemplos)
-├── card/          # flashcards gerados a partir das palavras
-├── review/        # repetição espaçada: fila do dia, registrar resposta, agendamento
-├── quiz/          # geração e correção de quizzes (múltipla escolha, completar frase)
+├── dictionary/    # APIs gratuitas: Free Dictionary (pronúncia, definições) e MyMemory (tradução)
+├── review/        # flashcards + repetição espaçada: fila do dia, registrar resposta
+├── quiz/          # quizzes de múltipla escolha gerados a partir das palavras do usuário
 ├── gamification/  # XP, streak, metas diárias, níveis, conquistas
 └── shared/        # exceções, config, utilitários
 ```
@@ -137,15 +136,27 @@ A "revisão diária" é simplesmente: `SELECT cards WHERE due_date <= hoje AND u
   `CardReviewedEvent`, e o módulo `gamification` escuta com `@EventListener`.
   Assim um módulo não depende do outro diretamente.
 
-## 7. Quizzes
+## 7. Pesquisa de palavras e quizzes (sem custo)
 
-Gerados a partir das palavras do próprio usuário:
+**Pesquisa** (`dictionary` + `GET /api/words/lookup`): o usuário cola a frase e clica na
+palavra. O backend consulta, com `RestClient`:
 
-1. **Múltipla escolha** — a tradução certa + 3 distratores (outras palavras do usuário).
-2. **Completar a frase** (cloze) — usando a `context_sentence` com a palavra ocultada.
-3. **Digitar a palavra** a partir da definição.
-4. *(Opcional, fase avançada)* Frases e perguntas geradas por um **LLM** (ex.: API do Claude),
-   com cache no banco para não gerar duas vezes.
+- **Free Dictionary API** → pronúncia (IPA), link do áudio, uma definição + exemplo por classe
+  gramatical (o usuário escolhe a que combina com a frase);
+- **MyMemory** → tradução da palavra, traduções alternativas e a tradução da frase inteira.
+
+As respostas ficam em cache (`@Cacheable`), as chamadas têm timeout e, se uma API falhar, os
+campos dela vêm vazios em vez de quebrar a pesquisa. Os detalhes escolhidos são salvos em
+`words` (`WordDetails`, um `@Embeddable`) e aparecem no verso do flashcard.
+
+**Quiz** (`QuizGenerator`, Java puro): para cada palavra sorteada, uma pergunta de
+múltipla escolha. As alternativas erradas são traduções/termos das outras palavras do usuário
+(por isso o mínimo de 4 palavras):
+
+1. **Completar a frase** — a frase onde a palavra apareceu (ou o exemplo do dicionário) com a
+   palavra trocada por uma lacuna (também pega formas como *banks*, *walked*, *walking*);
+2. **Significado** — "O que significa X?", opções em português;
+3. **Em inglês** — "Como se diz X em inglês?", opções em inglês.
 
 ## 8. API REST (rascunho)
 
@@ -153,11 +164,10 @@ Gerados a partir das palavras do próprio usuário:
 POST   /api/auth/register            POST /api/auth/login
 GET    /api/words?search=&page=      POST /api/words       (cria palavra + cards)
 GET    /api/words/{id}               PUT  /api/words/{id}    DELETE /api/words/{id}
-GET    /api/dictionary/{term}        (definição/tradução sugerida)
 GET    /api/reviews/due?limit=20     (fila de cards vencidos)
 POST   /api/reviews/{cardId}         { "grade": "GOOD" }   (AGAIN | HARD | GOOD | EASY)
 GET    /api/reviews/summary          (cards para hoje, revisões feitas hoje)
-POST   /api/quizzes                  (gera uma sessão)   POST /api/quizzes/{id}/answers
+POST   /api/quizzes?size=10          (gera perguntas de múltipla escolha)
 GET    /api/stats/me                 (XP, nível, streak, palavras aprendidas)
 ```
 
@@ -183,8 +193,8 @@ vocably/
 | 2    | ✅ Autenticação com JWT; palavras passam a pertencer ao usuário             |
 | 3    | ✅ Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2) |
 | 4    | ✅ Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
-| 5    | Integração com API de dicionário (preencher definição automaticamente)     |
-| 6    | Quizzes (múltipla escolha, cloze)                                          |
+| 5    | ✅ Pesquisa automática: Free Dictionary (pronúncia, áudio, definições) + MyMemory (tradução) |
+| 6    | ✅ Quizzes (completar a frase, significado, tradução reversa)               |
 | 7    | Gamificação (XP, streak, conquistas) com eventos do Spring                 |
 | 8    | Deploy + README com GIFs e link da demo                                    |
-| 9+   | Extras: extensão de navegador para salvar palavras, importar do Kindle, LLM, FSRS |
+| 9+   | Extras: extensão de navegador / PWA para salvar palavras, importar do Kindle, FSRS |

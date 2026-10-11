@@ -8,7 +8,7 @@ com repetição espaçada (SM-2), com XP, streaks e conquistas para manter o há
 
 📐 Arquitetura e roadmap: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-> Status: em desenvolvimento — fase 4 (primeira versão do frontend) concluída.
+> Status: em desenvolvimento — pesquisa automática de palavras e quizzes funcionando.
 
 ## Pré-requisitos
 
@@ -59,9 +59,19 @@ npm install        # só na primeira vez
 npm run dev
 ```
 
-Abra **http://localhost:5173**, crie sua conta, salve algumas palavras e clique em
-**Revisar**. Na revisão: **espaço** vira o card e as teclas **1–4** respondem
-(Errei / Difícil / Bom / Fácil).
+Abra **http://localhost:5173** e crie sua conta. Em **Palavras**, cole a frase onde você
+encontrou a palavra e clique nela: o Vocably busca tradução, pronúncia (com áudio) e
+significados — você escolhe o significado que combina com a frase e salva. Depois use
+**Revisar** (espaço vira o card, teclas **1–4** respondem) e **Quiz** (precisa de 4+ palavras).
+
+### APIs gratuitas usadas
+
+| API | Para quê | Limite |
+|-----|----------|--------|
+| [Free Dictionary API](https://dictionaryapi.dev) | pronúncia, áudio, definições e exemplos (em inglês) | sem chave |
+| [MyMemory](https://mymemory.translated.net) | tradução inglês → português | ~5.000 caracteres/dia; ~50.000 se você definir `TRANSLATION_EMAIL` com seu email |
+
+Se alguma delas estiver fora do ar, a pesquisa traz o que conseguir e você completa à mão.
 
 O Flyway cria as tabelas automaticamente na primeira execução
 (`backend/src/main/resources/db/migration`). Para checar só a API:
@@ -85,6 +95,7 @@ assinado (HS256) que vale 24h. Em produção, defina a variável de ambiente `JW
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `GET`    | `/api/words?search=&page=&size=` | lista paginada (busca por termo, sem diferenciar maiúsculas) |
+| `GET`    | `/api/words/lookup?term=&context=` | sugestão: tradução, pronúncia, áudio, significados e tradução da frase (não salva) |
 | `GET`    | `/api/words/{id}` | detalhe de uma palavra |
 | `POST`   | `/api/words` | cadastra uma palavra (201 + header `Location`) |
 | `PUT`    | `/api/words/{id}` | edita uma palavra |
@@ -100,6 +111,12 @@ agendados pelo algoritmo SM-2.
 | `GET`  | `/api/reviews/due?limit=20` | cards para revisar hoje (frente, verso e frase de contexto) |
 | `POST` | `/api/reviews/{cardId}` | registra a resposta: `{"grade": "AGAIN" \| "HARD" \| "GOOD" \| "EASY"}` |
 | `GET`  | `/api/reviews/summary` | `{"dueToday": 12, "reviewedToday": 5}` |
+
+### Quiz
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/api/quizzes?size=10` | perguntas de múltipla escolha com as suas palavras: completar a frase, significado e tradução reversa (422 se houver menos de 4 palavras) |
 
 `translation` é obrigatória ao cadastrar palavras. `sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
 [ProblemDetail (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), por exemplo
