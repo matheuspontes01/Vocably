@@ -24,15 +24,27 @@ export function DashboardPage() {
       </div>
 
       {summary && summary.dueToday > 0 ? (
-        <Link to="/review" className="button primary big">
-          Revisar {summary.dueToday} {summary.dueToday === 1 ? "card" : "cards"}
-        </Link>
+        <div className="row actions">
+          <Link to="/review" className="button primary big">
+            Revisar {summary.dueToday} {summary.dueToday === 1 ? "card" : "cards"}
+          </Link>
+          <Link to="/quiz" className="button big">
+            Fazer um quiz
+          </Link>
+        </div>
       ) : (
         <div className="panel center">
           <p>{totalWords === 0 ? "Comece salvando as palavras que você encontrar." : "Tudo revisado por hoje! 🎉"}</p>
-          <Link to="/words" className="button">
-            Adicionar palavras
-          </Link>
+          <div className="row center">
+            <Link to="/words" className="button">
+              Adicionar palavras
+            </Link>
+            {!!totalWords && (
+              <Link to="/quiz" className="button primary">
+                Fazer um quiz
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </div>

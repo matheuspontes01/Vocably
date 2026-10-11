@@ -14,10 +14,10 @@ diariamente com **repetição espaçada** e com uma camada de **gamificação**.
                                                             │
                          ┌──────────────────────────────────┼─────────────────────┐
                          ▼                                  ▼                     ▼
-                ┌────────────────┐              ┌──────────────────┐   ┌────────────────────┐
-                │  PostgreSQL    │              │ API de dicionário│   │ LLM (opcional)     │
-                │  (Flyway)      │              │ / tradução       │   │ gera frases/quizzes│
-                └────────────────┘              └──────────────────┘   └────────────────────┘
+                ┌────────────────┐                      ┌──────────────────────────────┐
+                │  PostgreSQL    │                      │ API do Claude (Anthropic)    │
+                │  (Flyway)      │                      │ tradução no contexto, quizzes│
+                └────────────────┘                      └──────────────────────────────┘
 ```
 
 **Por que monolito modular?** Para um projeto pessoal/portfólio ele é simples de rodar e
@@ -48,10 +48,9 @@ Organização por **funcionalidade** (package-by-feature), não por camada:
 backend/src/main/java/com/vocably/
 ├── auth/          # cadastro, login, JWT, usuário
 ├── word/          # palavras do usuário (termo, tradução, contexto, fonte)
-├── dictionary/    # integração com API externa (definição, fonética, exemplos)
-├── card/          # flashcards gerados a partir das palavras
-├── review/        # repetição espaçada: fila do dia, registrar resposta, agendamento
-├── quiz/          # geração e correção de quizzes (múltipla escolha, completar frase)
+├── ai/            # integração com a API do Claude (pesquisa de palavra, geração de quiz)
+├── review/        # flashcards + repetição espaçada: fila do dia, registrar resposta
+├── quiz/          # quizzes de múltipla escolha gerados pela IA
 ├── gamification/  # XP, streak, metas diárias, níveis, conquistas
 └── shared/        # exceções, config, utilitários
 ```
@@ -137,15 +136,26 @@ A "revisão diária" é simplesmente: `SELECT cards WHERE due_date <= hoje AND u
   `CardReviewedEvent`, e o módulo `gamification` escuta com `@EventListener`.
   Assim um módulo não depende do outro diretamente.
 
-## 7. Quizzes
+## 7. IA: pesquisa de palavras e quizzes
 
-Gerados a partir das palavras do próprio usuário:
+A integração fica no módulo `ai`, atrás da interface `VocabularyAi` (nos testes ela é
+substituída por um mock, sem chamar a API real). A implementação `ClaudeVocabularyAi` usa o
+SDK oficial `anthropic-java` com:
 
-1. **Múltipla escolha** — a tradução certa + 3 distratores (outras palavras do usuário).
-2. **Completar a frase** (cloze) — usando a `context_sentence` com a palavra ocultada.
-3. **Digitar a palavra** a partir da definição.
-4. *(Opcional, fase avançada)* Frases e perguntas geradas por um **LLM** (ex.: API do Claude),
-   com cache no banco para não gerar duas vezes.
+- **Saída estruturada:** o SDK gera um JSON Schema a partir dos records `WordLookup` e
+  `GeneratedQuiz`, e a resposta já chega convertida em objeto Java.
+- **Esforço (`effort`)** baixo na pesquisa (resposta rápida) e médio no quiz.
+- **Fallback no servidor:** se o modelo principal recusar um pedido, a API tenta outro modelo.
+
+**Pesquisa:** o usuário cola a frase onde encontrou a palavra e clica nela; a IA devolve a
+tradução *daquele significado* (ex.: "bank" → "margem" em "the bank of the river"),
+alternativas, pronúncia (IPA), definição simples, frase de exemplo e uma dica. Nada é salvo até
+o usuário confirmar; os detalhes ficam em colunas da tabela `words` (`WordDetails`, um
+`@Embeddable`) e aparecem no verso do flashcard.
+
+**Quiz:** palavras sorteadas do usuário viram perguntas de múltipla escolha de dois tipos:
+*completar a frase* e *significado no contexto*. O backend descarta perguntas mal formadas e
+embaralha as opções (modelos tendem a pôr a resposta certa sempre na mesma posição).
 
 ## 8. API REST (rascunho)
 
@@ -153,11 +163,10 @@ Gerados a partir das palavras do próprio usuário:
 POST   /api/auth/register            POST /api/auth/login
 GET    /api/words?search=&page=      POST /api/words       (cria palavra + cards)
 GET    /api/words/{id}               PUT  /api/words/{id}    DELETE /api/words/{id}
-GET    /api/dictionary/{term}        (definição/tradução sugerida)
 GET    /api/reviews/due?limit=20     (fila de cards vencidos)
 POST   /api/reviews/{cardId}         { "grade": "GOOD" }   (AGAIN | HARD | GOOD | EASY)
 GET    /api/reviews/summary          (cards para hoje, revisões feitas hoje)
-POST   /api/quizzes                  (gera uma sessão)   POST /api/quizzes/{id}/answers
+POST   /api/quizzes?size=5           (gera perguntas com a IA)
 GET    /api/stats/me                 (XP, nível, streak, palavras aprendidas)
 ```
 
@@ -183,8 +192,8 @@ vocably/
 | 2    | ✅ Autenticação com JWT; palavras passam a pertencer ao usuário             |
 | 3    | ✅ Cards + SM-2 + endpoint de revisão diária (com testes unitários do SM-2) |
 | 4    | ✅ Frontend: login, cadastro de palavra, tela de revisão com flip de card     |
-| 5    | Integração com API de dicionário (preencher definição automaticamente)     |
-| 6    | Quizzes (múltipla escolha, cloze)                                          |
+| 5    | ✅ Pesquisa de palavra com IA (tradução no contexto, pronúncia, definição, exemplo) |
+| 6    | ✅ Quizzes gerados por IA (completar a frase, significado no contexto)     |
 | 7    | Gamificação (XP, streak, conquistas) com eventos do Spring                 |
 | 8    | Deploy + README com GIFs e link da demo                                    |
-| 9+   | Extras: extensão de navegador para salvar palavras, importar do Kindle, LLM, FSRS |
+| 9+   | Extras: extensão de navegador / PWA para salvar palavras, importar do Kindle, FSRS |

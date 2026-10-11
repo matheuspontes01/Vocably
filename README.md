@@ -4,11 +4,11 @@ Aprenda vocabulário em inglês a partir das palavras que você encontra lendo l
 assistindo vídeos: cada palavra vira flashcards e quizzes, revisados no momento certo
 com repetição espaçada (SM-2), com XP, streaks e conquistas para manter o hábito diário.
 
-**Stack:** Java 21 · Spring Boot 4 · PostgreSQL · Flyway · Testcontainers · React + TypeScript
+**Stack:** Java 21 · Spring Boot 4 · PostgreSQL · Flyway · Testcontainers · React + TypeScript · API do Claude
 
 📐 Arquitetura e roadmap: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-> Status: em desenvolvimento — fase 4 (primeira versão do frontend) concluída.
+> Status: em desenvolvimento — pesquisa de palavras e quizzes com IA (Claude) funcionando.
 
 ## Pré-requisitos
 
@@ -41,6 +41,26 @@ docker compose version
 node -v                  # deve mostrar v22 ou mais novo
 ```
 
+## Configurando a IA (Claude)
+
+A pesquisa de palavras (tradução no contexto, pronúncia, definição e exemplo) e os quizzes usam
+a API do Claude. Sem chave, o resto do app funciona normalmente.
+
+1. Crie uma chave em https://console.anthropic.com (menu **API Keys**) e adicione créditos.
+2. Crie o arquivo `backend/config/application-local.yml` (essa pasta é ignorada pelo git, então
+   a chave nunca vai para o GitHub):
+
+   ```yaml
+   vocably:
+     ai:
+       api-key: sk-ant-sua-chave-aqui
+   ```
+
+   Outra opção é a variável de ambiente `ANTHROPIC_API_KEY`.
+
+O modelo padrão é o `claude-opus-5-5` (`vocably.ai.model`). Para gastar menos, você pode trocar
+por um modelo menor no mesmo arquivo, por exemplo `model: claude-haiku-5-5`.
+
 ## Rodando localmente
 
 São três partes, cada uma em um terminal:
@@ -59,9 +79,9 @@ npm install        # só na primeira vez
 npm run dev
 ```
 
-Abra **http://localhost:5173**, crie sua conta, salve algumas palavras e clique em
-**Revisar**. Na revisão: **espaço** vira o card e as teclas **1–4** respondem
-(Errei / Difícil / Bom / Fácil).
+Abra **http://localhost:5173** e crie sua conta. Em **Palavras**, cole a frase onde você
+encontrou a palavra e clique nela: a IA sugere tradução, pronúncia, definição e exemplo. Depois
+use **Revisar** (espaço vira o card, teclas **1–4** respondem) e **Quiz**.
 
 O Flyway cria as tabelas automaticamente na primeira execução
 (`backend/src/main/resources/db/migration`). Para checar só a API:
@@ -85,6 +105,7 @@ assinado (HS256) que vale 24h. Em produção, defina a variável de ambiente `JW
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | `GET`    | `/api/words?search=&page=&size=` | lista paginada (busca por termo, sem diferenciar maiúsculas) |
+| `GET`    | `/api/words/lookup?term=&context=` | sugestão da IA: tradução no contexto, pronúncia, definição, exemplo (não salva) |
 | `GET`    | `/api/words/{id}` | detalhe de uma palavra |
 | `POST`   | `/api/words` | cadastra uma palavra (201 + header `Location`) |
 | `PUT`    | `/api/words/{id}` | edita uma palavra |
@@ -100,6 +121,14 @@ agendados pelo algoritmo SM-2.
 | `GET`  | `/api/reviews/due?limit=20` | cards para revisar hoje (frente, verso e frase de contexto) |
 | `POST` | `/api/reviews/{cardId}` | registra a resposta: `{"grade": "AGAIN" \| "HARD" \| "GOOD" \| "EASY"}` |
 | `GET`  | `/api/reviews/summary` | `{"dueToday": 12, "reviewedToday": 5}` |
+
+### Quiz
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `POST` | `/api/quizzes?size=5` | gera perguntas de múltipla escolha com a IA (completar a frase / significado no contexto) |
+
+Sem chave da IA configurada, `lookup` e `quizzes` respondem **503**.
 
 `translation` é obrigatória ao cadastrar palavras. `sourceType` aceita `BOOK`, `VIDEO` ou `OTHER`. Erros seguem o padrão
 [ProblemDetail (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457), por exemplo
