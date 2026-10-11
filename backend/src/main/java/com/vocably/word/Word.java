@@ -1,7 +1,6 @@
 package com.vocably.word;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -42,9 +41,6 @@ public class Word {
     @Column(name = "source_title")
     private String sourceTitle;
 
-    @Embedded
-    private WordDetails details;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -53,24 +49,17 @@ public class Word {
     }
 
     public Word(Long userId, String term, String translation, String contextSentence, SourceType sourceType, String sourceTitle) {
-        this(userId, term, translation, contextSentence, sourceType, sourceTitle, WordDetails.EMPTY);
-    }
-
-    public Word(Long userId, String term, String translation, String contextSentence, SourceType sourceType,
-                String sourceTitle, WordDetails details) {
         this.userId = userId;
-        update(term, translation, contextSentence, sourceType, sourceTitle, details);
+        update(term, translation, contextSentence, sourceType, sourceTitle);
     }
 
     /** Em vez de vários setters, um único método mantém a entidade sempre consistente. */
-    public void update(String term, String translation, String contextSentence, SourceType sourceType,
-                       String sourceTitle, WordDetails details) {
+    public void update(String term, String translation, String contextSentence, SourceType sourceType, String sourceTitle) {
         this.term = term.trim();
         this.translation = translation.trim();
         this.contextSentence = contextSentence;
         this.sourceType = sourceType != null ? sourceType : SourceType.OTHER;
         this.sourceTitle = sourceTitle;
-        this.details = details;
     }
 
     @PrePersist
@@ -104,11 +93,6 @@ public class Word {
 
     public String getSourceTitle() {
         return sourceTitle;
-    }
-
-    /** Nunca null: quando todas as colunas estão vazias o Hibernate devolve null, e tratamos aqui. */
-    public WordDetails getDetails() {
-        return details != null ? details : WordDetails.EMPTY;
     }
 
     public Instant getCreatedAt() {

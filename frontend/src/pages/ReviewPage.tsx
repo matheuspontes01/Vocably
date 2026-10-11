@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Card, type ReviewGrade } from "../api";
-import { SpeakButton } from "../SpeakButton";
 
 const GRADES: { grade: ReviewGrade; label: string; key: string }[] = [
   { grade: "AGAIN", label: "Errei", key: "1" },
@@ -86,30 +85,13 @@ export function ReviewPage() {
       <div className={`flashcard ${revealed ? "flipped" : ""}`} onClick={() => setRevealed(true)}>
         <div className="face front">
           <span className="direction">{card.direction === "EN_TO_PT" ? "Inglês → Português" : "Português → Inglês"}</span>
-          <span className="word">
-            {card.front}
-            {card.direction === "EN_TO_PT" && <SpeakButton text={card.term} />}
-          </span>
+          <span className="word">{card.front}</span>
           <span className="muted hint">clique ou aperte espaço para ver a resposta</span>
         </div>
         <div className="face back">
-          <span className="muted">
-            {card.front}
-            {card.partOfSpeech && ` · ${card.partOfSpeech}`}
-          </span>
+          <span className="muted">{card.front}</span>
           <span className="word">{card.back}</span>
-          <span className="muted">
-            {card.term}
-            {card.phonetic && ` ${card.phonetic}`} <SpeakButton text={card.term} />
-          </span>
-          {card.definition && <p className="definition">{card.definition}</p>}
           {card.contextSentence && <p className="context">“{card.contextSentence}”</p>}
-          {card.exampleSentence && (
-            <p className="context">
-              {card.exampleSentence}
-              {card.exampleTranslation && <span className="example-translation">{card.exampleTranslation}</span>}
-            </p>
-          )}
         </div>
       </div>
 

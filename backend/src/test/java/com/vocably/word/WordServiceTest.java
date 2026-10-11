@@ -1,7 +1,5 @@
 package com.vocably.word;
 
-import com.vocably.ai.VocabularyAi;
-import com.vocably.ai.WordLookup;
 import com.vocably.shared.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +32,6 @@ class WordServiceTest {
     @Mock
     ApplicationEventPublisher events;
 
-    @Mock
-    VocabularyAi ai;
-
     @InjectMocks
     WordService service;
 
@@ -50,32 +45,6 @@ class WordServiceTest {
         assertThat(response.sourceType()).isEqualTo(SourceType.OTHER);
         // Outros módulos (revisão) são avisados para criar os cards.
         verify(events).publishEvent(any(WordCreatedEvent.class));
-    }
-
-    @Test
-    void lookupFlagsWordAlreadySavedByTheUser() {
-        when(ai.lookup("ran", "She ran away.")).thenReturn(lookupOf("run"));
-        Word existing = new Word(USER_ID, "run", "correr", null, SourceType.OTHER, null);
-        when(repository.findFirstByUserIdAndTermIgnoreCase(USER_ID, "run")).thenReturn(Optional.of(existing));
-
-        LookupResponse response = service.lookup(USER_ID, " ran ", "She ran away.");
-
-        // A IA devolve a forma base ("run"), e é por ela que procuramos a palavra repetida.
-        assertThat(response.suggestion().term()).isEqualTo("run");
-        assertThat(response.existingWordId()).isEqualTo(existing.getId());
-        verify(repository).findFirstByUserIdAndTermIgnoreCase(USER_ID, "run");
-    }
-
-    @Test
-    void lookupReturnsNoExistingWordForNewTerm() {
-        when(ai.lookup("ephemeral", null)).thenReturn(lookupOf("ephemeral"));
-        when(repository.findFirstByUserIdAndTermIgnoreCase(any(), any())).thenReturn(Optional.empty());
-
-        assertThat(service.lookup(USER_ID, "ephemeral", null).existingWordId()).isNull();
-    }
-
-    static WordLookup lookupOf(String term) {
-        return new WordLookup(term, "tradução", java.util.List.of(), "verbo", "/x/", "definition", "Example.", "Exemplo.", "");
     }
 
     @Test

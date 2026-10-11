@@ -1,8 +1,6 @@
 package com.vocably.word;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,14 +39,6 @@ public class WordController {
             @RequestParam(required = false) String search,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return service.list(userId(jwt), search, pageable);
-    }
-
-    /** Sugestão da IA para uma palavra (tradução no contexto, definição, exemplo). Não salva nada. */
-    @GetMapping("/lookup")
-    public LookupResponse lookup(@AuthenticationPrincipal Jwt jwt,
-                                 @RequestParam @NotBlank @Size(max = 100) String term,
-                                 @RequestParam(required = false) @Size(max = 1000) String context) {
-        return service.lookup(userId(jwt), term, context);
     }
 
     @GetMapping("/{id}")
