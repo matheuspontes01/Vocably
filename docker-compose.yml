@@ -1,3 +1,5 @@
+# Tudo junto (banco + API + site):   docker compose up -d --build   → http://localhost:3000
+# Só o banco (para desenvolver):     docker compose up -d postgres
 services:
   postgres:
     image: postgres:17-alpine
@@ -15,6 +17,32 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  backend:
+    build: ./backend
+    container_name: vocably-backend
+    environment:
+      # Dentro da rede do Docker o banco se chama "postgres" (nome do serviço), não localhost.
+      DB_URL: jdbc:postgresql://postgres:5432/vocably
+      DB_USERNAME: vocably
+      DB_PASSWORD: vocably
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
+      TRANSLATION_EMAIL: ${TRANSLATION_EMAIL:-}
+      # Fuso usado para "hoje" (revisões do dia, sequência). O container vem em UTC por padrão.
+      TZ: ${TZ:-America/Sao_Paulo}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: vocably-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   vocably-pgdata:

@@ -43,11 +43,31 @@ node -v                  # deve mostrar v22 ou mais novo
 
 ## Rodando localmente
 
-São três partes, cada uma em um terminal:
+### Opção 1: tudo no Docker (mais simples para usar o app)
+
+Só precisa do Docker Desktop aberto. Na raiz do projeto:
+
+```powershell
+docker compose up -d --build
+```
+
+Abra **http://localhost:3000**. O primeiro build demora alguns minutos (baixa Maven, Node e as
+dependências); os próximos são rápidos. Comandos úteis:
+
+```powershell
+docker compose logs -f backend   # ver os logs da API
+docker compose down              # parar tudo (os dados do banco continuam salvos)
+docker compose up -d --build     # depois de um git pull, para atualizar
+```
+
+### Opção 2: só o banco no Docker (para desenvolver)
+
+Assim o backend e o frontend recarregam na hora quando você muda o código. São três
+terminais:
 
 ```powershell
 # Terminal 1 — banco de dados (na raiz do projeto)
-docker compose up -d
+docker compose up -d postgres
 
 # Terminal 2 — API (Windows: mvnw.cmd · Linux/macOS: ./mvnw)
 cd backend
@@ -59,10 +79,16 @@ npm install        # só na primeira vez
 npm run dev
 ```
 
-Abra **http://localhost:5173** e crie sua conta. Em **Palavras**, cole a frase onde você
+Abra **http://localhost:5173**. Não rode as duas opções ao mesmo tempo: as duas usam a
+porta 8080 da API.
+
+### Usando o app
+
+Crie sua conta. Em **Palavras**, cole a frase onde você
 encontrou a palavra e clique nela: o Vocably busca tradução, pronúncia (com áudio) e
 significados — você escolhe o significado que combina com a frase e salva. Depois use
-**Revisar** (espaço vira o card, teclas **1–4** respondem) e **Quiz** (precisa de 4+ palavras).
+**Revisar** (espaço vira o card, teclas **1–4** respondem), **Quiz** (precisa de 4+ palavras)
+e **Progresso** (gráficos).
 
 ### APIs gratuitas usadas
 
